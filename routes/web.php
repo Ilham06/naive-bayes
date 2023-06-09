@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ConditionController;
+use App\Http\Controllers\ConditionDataController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +15,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('condition', [ConditionController::class, 'index'])->name('condition.index');
+Route::post('condition', [ConditionController::class, 'store'])->name('condition.store');
+Route::delete('condition/{id}', [ConditionController::class, 'destroy'])->name('condition.destroy');
+
+Route::get('data', [ConditionDataController::class, 'index'])->name('condition-data.index');
+Route::post('data', [ConditionDataController::class, 'store'])->name('condition-data.store');
+
+Route::post('calculate', [ConditionDataController::class, 'calculate'])->name('condition-data.calculate');
+Route::get('create', [ConditionDataController::class, 'createClasification'])->name('condition-data.create');
