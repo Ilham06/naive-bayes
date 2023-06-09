@@ -15,7 +15,7 @@
             <div class="col-lg-6">
                 <div class="card">
                     <div class="card-header">
-                        Data Kondisi
+                        Tabel Atribut
                     </div>
                     <div class="card-body">
                         <table class="table">
@@ -61,7 +61,9 @@
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label">Name</label>
-                                <input name="name" type="text" class="form-control">
+                                <input name="name" type="text" class="form-control @error('name')
+                                    is-invalid
+                                @enderror">
                               </div>
                             <div class="mb-3">
                                 <label>Type</label>

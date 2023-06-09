@@ -15,7 +15,7 @@
             <div class="col-lg-8">
                 <div class="card">
                     <div class="card-header">
-                        Data
+                        Tabel Data
                     </div>
                     <div class="card-body">
                         <table class="table">
@@ -38,7 +38,7 @@
                                         @endforeach
 
                                         <td>
-                                            <form method="post" action="{{ route('condition.destroy', $condition->id) }}">
+                                            <form method="post" action="{{ route('condition-data.destroy', $d->id) }}">
                                                 @method('delete')
                                                 @csrf
                                                 <button onclick="return confirm('Hapus data?')" type="submit"
@@ -65,7 +65,7 @@
                         <form method="post" action="{{ route('condition-data.store') }}">
                             @csrf
 
-                            @foreach ($conditions as $condition)
+                            @forelse ($conditions as $condition)
                                 @if ($condition->type == 'label')
                                     <div class="mb-3">
                                         <label>{{ $condition->name }}</label>
@@ -80,34 +80,13 @@
                                         <input name="condition[{{ $condition->id }}]" type="text" class="form-control">
                                     </div>
                                 @endif
-                            @endforeach
+                            @empty
+                                <p>belum ada data kondisi</p>
+                            @endforelse
 
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row d-flex justify-content-end mt-4">
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header">
-                        Hitung
-                    </div>
-                    <div class="card-body">
-                        <form method="post" action="{{ route('condition-data.calculate') }}">
-                            @csrf
-
-                            @foreach ($conditions as $condition)
-                                @if ($condition->type !== 'label')
-                                <div class="mb-3">
-                                    <label class="form-label">{{ $condition->name }}</label>
-                                    <input name="condition[{{ $condition->name }}]" type="text" class="form-control">
-                                </div>
-                                @endif
-                            @endforeach
-
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            @if ($conditions->count())
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            @endif
                         </form>
                     </div>
                 </div>

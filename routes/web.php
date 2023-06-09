@@ -19,8 +19,9 @@ Route::get('condition', [ConditionController::class, 'index'])->name('condition.
 Route::post('condition', [ConditionController::class, 'store'])->name('condition.store');
 Route::delete('condition/{id}', [ConditionController::class, 'destroy'])->name('condition.destroy');
 
-Route::get('data', [ConditionDataController::class, 'index'])->name('condition-data.index');
+Route::get('/', [ConditionDataController::class, 'index'])->name('condition-data.index');
 Route::post('data', [ConditionDataController::class, 'store'])->name('condition-data.store');
+Route::delete('destroy/{id}', [ConditionDataController::class, 'destroy'])->name('condition-data.destroy');
 
-Route::post('calculate', [ConditionDataController::class, 'calculate'])->name('condition-data.calculate');
-Route::get('create', [ConditionDataController::class, 'createClasification'])->name('condition-data.create');
+Route::post('clasification', [ConditionDataController::class, 'calculate'])->name('clasification.calculate');
+Route::get('clasification', [ConditionDataController::class, 'createClasification'])->name('clasification.create');

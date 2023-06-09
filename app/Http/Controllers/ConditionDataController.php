@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ClasificationRequest;
+use App\Http\Requests\ConditionRequest;
+use App\Http\Requests\DataRequest;
 use App\Models\Condition;
 use App\Models\ConditionData;
 use App\Models\Data;
@@ -21,7 +24,7 @@ class ConditionDataController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(DataRequest $request)
     {
         $data = Data::create([
             'code' => Str::random(5)
@@ -38,46 +41,54 @@ class ConditionDataController extends Controller
         return redirect()->route('condition-data.index')->with('message', 'Sukses tambah data');
     }
 
+    public function destroy($id)
+    {
+        Data::destroy($id);
+        return redirect()->route('condition-data.index')->with('message', 'Sukses tambah dihapus');
+    }
+
     public function createClasification()
     {
-        return view('pages.create-calculate', [
+        return view('pages.create-clasification', [
             'conditions' => Condition::all(),
         ]);
     }
 
-    public function calculate(Request $request)
+    public function calculate(ClasificationRequest $request)
     {
 
-        $conditions = Condition::all();
-        $label = Condition::whereType('label')->first();
+        $conditions = Condition::orderBy('type', 'asc')->get();
+        $labelCondition = Condition::whereType('label')->first();
         $conditionData = ConditionData::with('condition')->get();
+
         $newConditionData = [];
         foreach ($conditionData as $key => $cd) {
             $newConditionData[$cd->data_id][$cd->condition->name] = $cd->value;
         }
 
         $source = collect($newConditionData);
-        $yTotal = $source->where($label->name, 'Yes')->count();
-        $nTotal = $source->where($label->name, 'No')->count();
+        $yTotal = $source->where($labelCondition->name, 'Yes')->count();
+        $nTotal = $source->where($labelCondition->name, 'No')->count();
 
         $result = [];
-        $l = [];
+        $label = [];
+
         foreach ($conditions as $key => $condition) {
             foreach ($conditionData as $key => $cd) {
                 if ($condition->id == $cd->condition_id) {
 
-                    if ($cd->condition_id == $label->id) {
-                        $result[$condition->name]['Yes'] = $source->where($label->name, 'Yes')->count();
-                        $result[$condition->name]['No'] = $source->where($label->name, 'No')->count();
+                    if ($cd->condition_id == $labelCondition->id) {
+                        $result[$condition->name]['yes'] = $source->where($labelCondition->name, 'Yes')->count();
+                        $result[$condition->name]['no'] = $source->where($labelCondition->name, 'No')->count();
                         $result[$condition->name]['total'] = $source->count();
 
-                        $l = $result[$condition->name];
+                        $label = $result[$condition->name];
 
 
                     } else {
-                        $result[$condition->name][$cd->value]['yes'] = $source->where($condition->name, $cd->value)->where($label->name, 'Yes')->count();
+                        $result[$condition->name][$cd->value]['yes'] = $source->where($condition->name, $cd->value)->where($labelCondition->name, 'Yes')->count();
 
-                        $result[$condition->name][$cd->value]['no'] = $source->where($condition->name, $cd->value)->where($label->name, 'No')->count();
+                        $result[$condition->name][$cd->value]['no'] = $source->where($condition->name, $cd->value)->where($labelCondition->name, 'No')->count();
 
                         $result[$condition->name][$cd->value]['total(yes)'] = $yTotal;
 
@@ -95,10 +106,20 @@ class ConditionDataController extends Controller
             $y *= $result[$key][$input]['yes'] / $result[$key][$input]['total(yes)'];
             $n *= $result[$key][$input]['no'] / $result[$key][$input]['total(no)'];
         }
-        $divider = ($y * ($l['Yes'] / $l['total'])) + ($n * ($l['No'] / $l['total']));
 
-        $probsY = ($y * ($l['Yes'] / $l['total'])) / $divider;
-        $probsN = ($n * ($l['No'] / $l['total'])) / $divider;
-        dd($probsY + $probsN);
+        $y = $y * ($label['yes'] / $label['total']);
+        $n = $n * ($label['no'] / $label['total']);
+
+        $divider = $y + $n;
+
+        $probsY = $y / $divider;
+        $probsN = $n / $divider;
+
+        return view('pages.result', [
+            'result' => $result,
+            'dataset' => $request->condition,
+            'probsY' => $probsY,
+            'probsN' => $probsN
+        ]);
     }
 }

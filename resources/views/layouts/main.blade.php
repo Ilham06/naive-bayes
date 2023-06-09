@@ -13,7 +13,23 @@
     </style>
   </head>
   <body>
-
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container">
+          <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link" href="{{ route('condition.index') }}">Atribut</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ route('condition-data.index') }}">Data</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ route('clasification.create') }}">Perhitungan</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
     <div class="container">
         @yield('content')
     </div>
