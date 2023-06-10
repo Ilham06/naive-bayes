@@ -9,6 +9,7 @@ use App\Models\Condition;
 use App\Models\ConditionData;
 use App\Models\Data;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ConditionDataController extends Controller
@@ -26,19 +27,26 @@ class ConditionDataController extends Controller
 
     public function store(DataRequest $request)
     {
-        $data = Data::create([
-            'code' => Str::random(5)
-        ]);
-
-        foreach ($request->condition as $key => $value) {
-            ConditionData::create([
-                'data_id' => $data->id,
-                'condition_id' => $key,
-                'value' => $value
+        try {
+            DB::beginTransaction();
+            $data = Data::create([
+                'code' => Str::random(5)
             ]);
+
+            foreach ($request->condition as $key => $value) {
+                ConditionData::create([
+                    'data_id' => $data->id,
+                    'condition_id' => $key,
+                    'value' => $value
+                ]);
+            }
+            DB::commit();
+            return redirect()->route('condition-data.index')->with('message', 'Sukses tambah data');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
         }
 
-        return redirect()->route('condition-data.index')->with('message', 'Sukses tambah data');
     }
 
     public function destroy($id)
@@ -99,12 +107,21 @@ class ConditionDataController extends Controller
         }
 
         $result = collect($result);
+
         $y = 1;
         $n = 1;
 
         foreach ($request->condition as $key => $input) {
+
             $y *= $result[$key][$input]['yes'] / $result[$key][$input]['total(yes)'];
             $n *= $result[$key][$input]['no'] / $result[$key][$input]['total(no)'];
+        }
+
+        if ($n == 0) {
+            $n = $this->laplacianCorrection($result, $request->condition, 'no');
+        }
+        if ($y == 0) {
+            $y = $this->laplacianCorrection($result, $request->condition, 'yes');
         }
 
         $y = $y * ($label['yes'] / $label['total']);
@@ -121,5 +138,16 @@ class ConditionDataController extends Controller
             'probsY' => $probsY,
             'probsN' => $probsN
         ]);
+    }
+
+    public function laplacianCorrection($result, $data, $selected)
+    {
+        $value = 1;
+
+        foreach ($data as $key => $d) {
+            $value *= ($result[$key][$d][$selected] + 1) / ($result[$key][$d]['total('.$selected.')'] * 2);
+        }
+
+        return $value;
     }
 }

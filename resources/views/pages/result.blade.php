@@ -76,9 +76,9 @@
                     @endforeach
                     maka diperoleh hasil perhitungan sebagai berikut :
                     <br>
-                    Nilai Probabilitas Y = {{ $probsY }}
+                    Nilai Probabilitas Y = {{ round($probsY, 5) }}
                     <br>
-                    Nilai Probabilitan N = {{ $probsN }}
+                    Nilai Probabilitan N = {{ round($probsN, 5) }}
                     <br><br>
                     Jadi, klasifikasi yang dihasilkan adalah <strong>{{ $probsY > $probsN ? 'Ya' : 'Tidak' }}</strong>.
                 </div>
