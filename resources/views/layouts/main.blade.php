@@ -18,7 +18,7 @@
           <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
             <ul class="navbar-nav">
               <li class="nav-item">
-                <a class="nav-link" href="{{ route('condition.index') }}">Atribut</a>
+                <a class="nav-link" href="{{ route('condition.index') }}">Data Atribut</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{ route('condition-data.index') }}">Data</a>
